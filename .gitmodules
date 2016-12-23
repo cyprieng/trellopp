@@ -1,0 +1,3 @@
+[submodule "external/liboauthcpp"]
+	path = external/liboauthcpp
+	url = https://github.com/sirikata/liboauthcpp.git
