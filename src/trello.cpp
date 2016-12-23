@@ -1,6 +1,7 @@
 #include "trello.h"
 
 #include <liboauthcpp/liboauthcpp.h>
+#include <QApplication>
 
 using namespace std;
 
