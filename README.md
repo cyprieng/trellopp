@@ -1,2 +1,2 @@
-# trello-
-C++ library for Trello
+# trello++
+C++ client for Trello
