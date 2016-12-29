@@ -50,9 +50,10 @@ set(CMAKE_AUTOMOC ON)
 
 # Find the QtWidgets library
 find_package(Qt5Widgets)
+find_package(Qt5Network)
 
 # Use the Widgets module from Qt 5.
-target_link_libraries(trello Qt5::Widgets)
+target_link_libraries(trello Qt5::Widgets Qt5::Network)
 
 ###############################################################################
 ## packaging ##################################################################

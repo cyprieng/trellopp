@@ -3,19 +3,20 @@
 
 #include <iostream>
 #include <string>
+#include <liboauthcpp/liboauthcpp.h>
 
 class Trello
 {
  public:
   static const std::string API_KEY;
   static const std::string API_SECRET;
-  static std::string connect();
+  static OAuth::Token connect();
 
-  Trello(std::string token);
+  Trello(OAuth::Token& token);
   ~Trello();
 
  private:
-  std::string m_token;
+  OAuth::Token* m_token;
 };
 
 #endif
