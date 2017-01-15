@@ -1,5 +1,5 @@
-#include <iostream>
-#include <QCoreApplication>
+#include <QApplication>
+#include <QtWebEngineWidgets>
 
 #include "trello.h"
 
@@ -7,8 +7,8 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-  QCoreApplication a(argc, argv);
-  Trello::connect();
+  QApplication app(argc, argv);
+  Trello *trello = new Trello();
 
-  return 0;
+  return app.exec();
 }

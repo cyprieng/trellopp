@@ -3,7 +3,6 @@
 
 #include <QCoreApplication>
 
-void openUrl(QString& url);
 QString getURLContent(QString& url);
 
 #endif

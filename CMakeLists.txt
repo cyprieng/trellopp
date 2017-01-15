@@ -2,6 +2,19 @@ cmake_minimum_required(VERSION 3.0) # setting this is required
 project(trello)            # this sets the project name
 
 ###############################################################################
+## Qt #########################################################################
+###############################################################################
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
+
+# Find the QtWidgets library
+find_package(Qt5Widgets)
+find_package(Qt5Network)
+find_package(Qt5WebEngineWidgets)
+
+###############################################################################
 ## file globbing ##############################################################
 ###############################################################################
 
@@ -26,6 +39,8 @@ target_compile_options(trello PUBLIC -std=c++1y -Wall -Wfloat-conversion)
 # This allows to include files relative to the root of the src directory with a <> pair
 target_include_directories(trello PUBLIC src/main)
 
+target_link_libraries(trello Qt5::Widgets Qt5::Network Qt5::WebEngineWidgets)
+
 # This copies all resource files in the build directory.
 # We need this, because we want to work with paths relative to the executable.
 
@@ -38,22 +53,6 @@ include_directories(trello
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/external/liboauthcpp/include/
 )
-
-
-###############################################################################
-## QT #########################################################################
-###############################################################################
-# Find includes in corresponding build directories
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# Instruct CMake to run moc automatically when needed.
-set(CMAKE_AUTOMOC ON)
-
-# Find the QtWidgets library
-find_package(Qt5Widgets)
-find_package(Qt5Network)
-
-# Use the Widgets module from Qt 5.
-target_link_libraries(trello Qt5::Widgets Qt5::Network)
 
 ###############################################################################
 ## packaging ##################################################################

@@ -10,10 +10,6 @@
 #include <QTextCodec>
 
 
-void openUrl(QString& url){
-  QProcess::startDetached(QString("xdg-open " + url));
-}
-
 QString getURLContent(QString& url){
   QUrl qurl(url);
 

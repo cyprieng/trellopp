@@ -6,6 +6,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
+#include <QtWebEngineWidgets>
 
 using namespace std;
 
@@ -19,7 +20,7 @@ string const authorize_url = "https://trello.com/1/OAuthAuthorizeToken";
 string const access_token_url = "https://trello.com/1/OAuthGetAccessToken";
 
 
-OAuth::Token Trello::connect(){
+Trello::Trello() : QObject(){
   OAuth::Consumer consumer(Trello::API_KEY, Trello::API_SECRET);
   OAuth::Client oauth(&consumer);
 
@@ -28,23 +29,41 @@ OAuth::Token Trello::connect(){
   QString oauth_url = QString::fromStdString(request_token_url + "?" + oauth_query_string);
   QString data = getURLContent(oauth_url);
 
-  OAuth::Token request_token = OAuth::Token::extract(data.toStdString());
-  QString get_authorize_url = QString::fromStdString(authorize_url + "?oauth_token=" + request_token.key());
-  openUrl(get_authorize_url);
+  m_request_token = new OAuth::Token(OAuth::Token::extract(data.toStdString()));
+  QString get_authorize_url = QString::fromStdString(authorize_url + "?oauth_token=" + m_request_token->key());
 
-  string verification_code;
-  cout << "Verification code: ";
-  cin >> verification_code;
+  // Open URL and retrieve verification code
+  m_view = new QWebEngineView();
+  m_view->load(get_authorize_url);
+  m_view->show();
+  connect(m_view, SIGNAL(loadFinished(bool)), this, SLOT(slotTrelloWebView(bool)));
+}
 
-  request_token.setPin(verification_code);
-  oauth = OAuth::Client(&consumer, &request_token);
-  oauth_query_string = oauth.getURLQueryString(OAuth::Http::Get, access_token_url, string(""), true);
+void Trello::slotTrelloWebView(bool loaded){
+  const QUrl url = m_view->url();
+  if(url.url().toStdString().compare("https://trello.com/1/token/approve") == 0){
+    m_view->page()->toPlainText([this](const QString &content){
+      QStringList splitted_content = content.split(QRegExp("[\r\n]"), QString::SkipEmptyParts);
+      QString last_line = splitted_content.at(splitted_content.size() - 1);
+      last_line.remove(' ');
+      string verification_code = last_line.toStdString();
+      m_view->close();
+      processVerificationCode(verification_code);
+    });
+  }
+}
 
-  oauth_url = QString::fromStdString(access_token_url + "?" + oauth_query_string);
-  data = getURLContent(oauth_url);
+void Trello::processVerificationCode(string& verification_code){
+  OAuth::Consumer consumer(Trello::API_KEY, Trello::API_SECRET);
+  m_request_token->setPin(verification_code);
+  OAuth::Client oauth = OAuth::Client(&consumer, m_request_token);
+  string oauth_query_string = oauth.getURLQueryString(OAuth::Http::Get, access_token_url, string(""), true);
+
+  QString oauth_url = QString::fromStdString(access_token_url + "?" + oauth_query_string);
+  QString data = getURLContent(oauth_url);
   OAuth::KeyValuePairs access_token_resp_data = OAuth::ParseKeyValuePairs(data.toStdString());
   OAuth::Token access_token = OAuth::Token::extract(access_token_resp_data);
-  return access_token;
+  m_token = &access_token;
 }
 
 Trello::Trello(OAuth::Token& token){
